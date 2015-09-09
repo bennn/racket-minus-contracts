@@ -1,15 +1,5 @@
-From e3a07fa756f47e0eb93be0811f245f1f814f028e Mon Sep 17 00:00:00 2001
-From: ben <types@ccs.neu.edu>
-Date: Sun, 18 Jan 2015 18:51:48 -0500
-Subject: [PATCH] imported leif's no-contract changes
-
----
- racket/collects/racket/contract/private/base.rkt   |  7 +-
- .../collects/racket/contract/private/provide.rkt   | 80 +++++++++++-----------
- 2 files changed, 43 insertions(+), 44 deletions(-)
-
 diff --git a/racket/collects/racket/contract/private/base.rkt b/racket/collects/racket/contract/private/base.rkt
-index c7bb61c..cf0ca33 100644
+index aee46da..7cc3a7c 100644
 --- a/racket/collects/racket/contract/private/base.rkt
 +++ b/racket/collects/racket/contract/private/base.rkt
 @@ -35,13 +35,10 @@
@@ -29,10 +19,10 @@ index c7bb61c..cf0ca33 100644
       (raise-syntax-error 'contract
         (string-append
 diff --git a/racket/collects/racket/contract/private/provide.rkt b/racket/collects/racket/contract/private/provide.rkt
-index 5356a64..b020493 100644
+index d874ae1..b73baff 100644
 --- a/racket/collects/racket/contract/private/provide.rkt
 +++ b/racket/collects/racket/contract/private/provide.rkt
-@@ -350,42 +350,44 @@
+@@ -350,42 +350,7 @@
              (raise-syntax-error #f "expected an identifier" stx #'new-id))
            (unless (identifier? #'orig-id)
              (raise-syntax-error #f "expected an identifier" stx #'orig-id))
@@ -72,74 +62,19 @@ index 5356a64..b020493 100644
 -                                               srcloc-expr
 -                                               'define-module-boundary-contract
 -                                               pos-blame-party-expr))])]))
-+          #'orig-id
-+          ;; (define-values (pos-blame-party-expr srcloc-expr)
-+          ;;   (let loop ([kwd-args (syntax->list #'(kwd-args ...))]
-+          ;;              [pos-blame-party-expr #'(quote-module-path)]
-+          ;;              [srcloc-expr #f])
-+          ;;     (cond
-+          ;;       [(null? kwd-args) (values pos-blame-party-expr
-+          ;;                                 (or srcloc-expr (stx->srcloc-expr stx)))]
-+          ;;       [else
-+          ;;        (define kwd (car kwd-args))
-+          ;;        (cond 
-+          ;;          [(equal? (syntax-e kwd) '#:pos-source)
-+          ;;           (when (null? (cdr kwd-args))
-+          ;;             (raise-syntax-error #f "expected a keyword argument to follow #:pos-source"
-+          ;;                                 stx))
-+          ;;           (loop (cddr kwd-args)
-+          ;;                 (cadr kwd-args)
-+          ;;                 srcloc-expr)]
-+          ;;          [(equal? (syntax-e kwd) '#:srcloc)
-+          ;;           (when (null? (cdr kwd-args))
-+          ;;             (raise-syntax-error #f "expected a keyword argument to follow #:srcloc"
-+          ;;                                 stx))
-+          ;;           (loop (cddr kwd-args)
-+          ;;                 pos-blame-party-expr
-+          ;;                 (cadr kwd-args))]
-+          ;;          [else
-+          ;;           (raise-syntax-error #f "expected either the keyword #:pos-source of #:srcloc"
-+          ;;                               stx
-+          ;;                               (car kwd-args))])])))
-+          ;; (internal-function-to-be-figured-out #'ctrct
-+          ;;                                      #'orig-id
-+          ;;                                      #'orig-id
-+          ;;                                      #'new-id
-+          ;;                                      #'new-id
-+          ;;                                      srcloc-expr
-+          ;;                                      'define-module-boundary-contract
-+          ;;                                      pos-blame-party-expr)
-+                                       )])]))
++          #'(define new-id orig-id))])]))
  
  ;; ... -> (or/c #f (-> blame val))
  (define (do-partial-app ctc val name pos-module-source source)
-@@ -525,7 +527,7 @@
-                        (loop (cdr clauses) exists-binders)
-                        (cons (code-for-one-id provide-stx
-                                               (syntax this-name) #f
--                                              (add-exists-binders (syntax contract) exists-binders)
-+                                              (add-exists-binders (syntax any/c) exists-binders) ;; no more contract
-                                               (syntax new-name))
-                              (loop (cdr clauses) exists-binders))))]
-                 [(rename this-name new-name contract)
-@@ -560,7 +562,7 @@
-                        (let ([sc (build-struct-code provide-stx
-                                                     (syntax struct-name)
-                                                     (syntax->list (syntax (field-name ...)))
--                                                    (map (λ (x) (add-exists-binders x exists-binders))
-+                                                    (map (λ (x) (add-exists-binders (syntax any/c) exists-binders))
-                                                          (syntax->list (syntax (contract ...))))
-                                                     omit-constructor?)])
-                          (cons sc (loop (cdr clauses) exists-binders)))))]
-@@ -609,7 +611,7 @@
-                        (loop (cdr clauses) exists-binders)
-                        (cons (code-for-one-id provide-stx
-                                               (syntax name) #f
--                                              (add-exists-binders (syntax contract)
-+                                              (add-exists-binders (syntax any/c)
-                                                                   exists-binders)
-                                               #f)
-                              (loop (cdr clauses) exists-binders))))]
--- 
-2.2.1
-
+@@ -1028,9 +993,10 @@
+              #`(define #,x-gen (new-∀/c '#,x))))
+ 
+        (define (add-exists-binders stx exists-binders)
++         (let ([stx (syntax any/c)])
+          (if (null? exists-binders)
+              stx
+-             #`(let #,exists-binders #,stx)))
++             #`(let #,exists-binders #,stx))))
+ 
+        (define (add-a-binder id id-gen binders)
+          (cons #`[#,id #,id-gen] binders))
