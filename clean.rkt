@@ -1,6 +1,8 @@
 #lang racket/base
 
-;; TODO
+;; Script to undo changes made by the `setup.rkt` script.
+;; - Restores backup files
+;; - Rebuilds Racket
 
 (require
   "common.rkt")

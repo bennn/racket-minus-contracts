@@ -1,6 +1,9 @@
 #lang racket/base
 
-;; TODO
+;; Script to apply a patch to a Racket install
+;; - Saves the files to-be-overwritten
+;; - Clobbers a few files with a patch
+;; - Rebuilds Racket
 
 (require
   "common.rkt"

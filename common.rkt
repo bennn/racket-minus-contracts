@@ -2,18 +2,48 @@
 
 (provide
   backup-dir
+  ;; Path-String
+  ;; Directory to save overwritten files to.
+
   overridden-files
+  ;; (Listof String)
+  ;; List of filenames that the patch will modify
+
   patch-file
-  ;; --
+  ;; String
+  ;; Name of the .patch file. (To avoid typos.)
+
   debug
+  ;; #'(-> Boolean String Void)
+  ;; Macro, prints the second argument if the first is #t
+
   recompile
-  ;; --
+  ;; #'(-> Path-String Boolean)
+  ;; Recompile the Racket installation rooted at the first argument.
+  ;; Return a flag indicating whether the build was successful.
+
   infer-rkt-dir
+  ;; (-> (U #f Path-String))
+  ;; Infer the location of the user's Racket installation by searching
+  ;; for the `racket` executable
+
   parse-rkt-dir
+  ;; (-> (U #f Path-String) (U #f Path-String))
+  ;; Check that the argument is the root of a Racket install.
+  ;; Return #f on failure.
+
   read-rkt-dir
-  ;; --
+  ;; (-> (U #f Path-String))
+  ;; Query the user for their favorite Racket install.
+  ;; Return #f if they lied and gave an argument that was not a Racket install.
+
   save-backups
+  ;; (-> Path-String Void)
+  ;; Save the files to-be-overwritten that live inside the directory.
+
   restore-backups
+  ;; (-> Path-String Void)
+  ;; Move already-saved backup files back to the directory.
 )
 
 (require
@@ -34,23 +64,17 @@
 
 ;; -----------------------------------------------------------------------------
 
+;; Print a message if the flag `v?` is set
 (define-syntax-rule (debug v? msg)
   (when v?
     (displayln (string-append "[INFO] " msg))))
 
+;; Recompile a racket install. Skip building the docs to save time.
 (define-syntax-rule (recompile rkt-dir)
   (parameterize ([current-directory rkt-dir])
     (system "env PLT_SETUP_OPTIONS='-D' make")))
 
 ;; -----------------------------------------------------------------------------
-
-;; Prompt user to enter a path-string to their Racket install.
-(define (read-rkt-dir)
-  (printf "Enter the full path to your Racket install:\n")
-  (define rkt (read-line))
-  (when (eof-object? rkt)
-    (raise-user-error 'config "Got EOF, shutting down."))
-  (parse-rkt-dir rkt))
 
 ;; Try to guess the correct racket installation
 (define (infer-rkt-dir)
@@ -71,8 +95,18 @@
                     #f)))
          dir)))
 
+;; Prompt user to enter a path-string to their Racket install.
+(define (read-rkt-dir)
+  (printf "Enter the full path to your Racket install:\n")
+  (define rkt (read-line))
+  (when (eof-object? rkt)
+    (raise-user-error 'config "Got EOF, shutting down."))
+  (parse-rkt-dir rkt))
+
 ;; -----------------------------------------------------------------------------
 
+;; Copy backup files to some place.
+;; (: copy-backups (-> Path-String (U 'save 'restore) Void))
 (define (copy-backups rkt-dir mode)
   (for ([o-file (in-list overridden-files)])
     (define orig (string-append rkt-dir "/" o-file))
