@@ -6,7 +6,7 @@
   (define (f x)
     (+ 2 x))
 
-  (provide (contract-out [f (-> integer? integer?)])))
+  (provide (contract-out [f (-> boolean? integer?)])))
 
 (require 'a)
-(f #t)
+(f 1)
