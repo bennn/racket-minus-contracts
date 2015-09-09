@@ -72,7 +72,44 @@ index 5356a64..b020493 100644
 -                                               srcloc-expr
 -                                               'define-module-boundary-contract
 -                                               pos-blame-party-expr))])]))
-+          (define new-id orig-id)
++          #'orig-id
++          ;; (define-values (pos-blame-party-expr srcloc-expr)
++          ;;   (let loop ([kwd-args (syntax->list #'(kwd-args ...))]
++          ;;              [pos-blame-party-expr #'(quote-module-path)]
++          ;;              [srcloc-expr #f])
++          ;;     (cond
++          ;;       [(null? kwd-args) (values pos-blame-party-expr
++          ;;                                 (or srcloc-expr (stx->srcloc-expr stx)))]
++          ;;       [else
++          ;;        (define kwd (car kwd-args))
++          ;;        (cond 
++          ;;          [(equal? (syntax-e kwd) '#:pos-source)
++          ;;           (when (null? (cdr kwd-args))
++          ;;             (raise-syntax-error #f "expected a keyword argument to follow #:pos-source"
++          ;;                                 stx))
++          ;;           (loop (cddr kwd-args)
++          ;;                 (cadr kwd-args)
++          ;;                 srcloc-expr)]
++          ;;          [(equal? (syntax-e kwd) '#:srcloc)
++          ;;           (when (null? (cdr kwd-args))
++          ;;             (raise-syntax-error #f "expected a keyword argument to follow #:srcloc"
++          ;;                                 stx))
++          ;;           (loop (cddr kwd-args)
++          ;;                 pos-blame-party-expr
++          ;;                 (cadr kwd-args))]
++          ;;          [else
++          ;;           (raise-syntax-error #f "expected either the keyword #:pos-source of #:srcloc"
++          ;;                               stx
++          ;;                               (car kwd-args))])])))
++          ;; (internal-function-to-be-figured-out #'ctrct
++          ;;                                      #'orig-id
++          ;;                                      #'orig-id
++          ;;                                      #'new-id
++          ;;                                      #'new-id
++          ;;                                      srcloc-expr
++          ;;                                      'define-module-boundary-contract
++          ;;                                      pos-blame-party-expr)
++                                       )])]))
  
  ;; ... -> (or/c #f (-> blame val))
  (define (do-partial-app ctc val name pos-module-source source)
