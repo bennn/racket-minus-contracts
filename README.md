@@ -47,3 +47,38 @@ Manually:
   - Reset the changes with git: `git checkout -- .`
   - Rebuild Racket
 
+
+Advanced: Ignore a few contracts
+--------------------------------
+Here's the scenario:
+1. You've run the contract profiler
+2. You've noticed that one particular contract is very expensive.
+
+For example, you see this output and decide that `(-> any/c boolean?)` is overly expensive.
+```
+Running time is 89.27% contracts
+29511/33056 ms
+
+
+BY CONTRACT
+
+(-> any/c Real) @ #(struct:srcloc base-types.rkt #f #f #f 0)
+  12869 ms
+
+(-> any/c boolean?) @ #(struct:srcloc base-types.rkt #f #f #f 0)
+  22447/2 ms
+
+(-> block? block? any) @ #(struct:srcloc block.rkt 35 1 1009 7)
+  5353 ms
+```
+
+Here's the solution:
+1. Run `racket setup.rkt "(-> any/c boolean?)`.
+
+Just like that, with a string.
+
+This recompiles your contract library to special-case contracts with that name.
+
+To undo the change, run `make clean` as before.
+
+Note that this feature does not recompile your entire Racket install.
