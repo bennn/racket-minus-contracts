@@ -1,0 +1,15 @@
+diff --git a/racket/collects/racket/contract/private/base.rkt b/racket/collects/racket/contract/private/base.rkt
+index aee46da..25c8d5a 100644
+--- a/racket/collects/racket/contract/private/base.rkt
++++ b/racket/collects/racket/contract/private/base.rkt
+@@ -67,7 +67,10 @@
+                   
+                   (if clnp #f neg)
+                   #t))
++    (define c-str (format "~a" (blame-contract blame)))
+     (cond
++      [(member c-str #TEMPLATE-HOLE)
++       v]
+       [clnp ((clnp blame) v neg)]
+       [else (((contract-projection c) blame) v)])))
+ 
