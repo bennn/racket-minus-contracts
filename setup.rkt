@@ -7,9 +7,25 @@
 
 (require
   "common.rkt"
+  (only-in racket/string string-replace)
   (only-in racket/system system))
 
 ;; =============================================================================
+
+;; Create a real patchfile from a template.
+;; Replace "the-empty-line" with a string match
+(define (compile-patchfile strs-to-ignore)
+  (define TMP "#TEMPLATE-HOLE")
+  (define rTMP (regexp TMP))
+  (with-output-to-file ignore-some-patchfile #:exists 'replace
+    (lambda ()
+      (with-input-from-file patchfile-template
+        (lambda ()
+          (for ([ln (in-lines)])
+            (if (regexp-match? rTMP ln)
+                (displayln (string-replace ln TMP (format "'~s" strs-to-ignore)))
+                (displayln ln))))))))
+
 
 ;; Get the source for the Racket directory,
 ;; save original contract files,
@@ -26,7 +42,7 @@
    #:once-each
    [("-q" "--quiet")  "Run quietly" (*verbose* #f)]
    [("-r" "--racket") r-param "Directory containing Racket source to modify." (*rkt* r-param)]
-   #:args ()
+   #:args CTR*
    (begin
      (define v? (*verbose*))
      (debug v? "Searching for racket installation...")
@@ -39,11 +55,16 @@
      (debug v? (format "Found Racket directory '~a', copying backup files..." rkt-dir))
      (save-backups rkt-dir)
      (debug v? (format "Saved backup files to '~a' directory. Applying patch..." backup-dir))
-     (unless (file-exists? patch-file)
-       (raise-user-error 'setup (format "Error: could not find patch file '~a'. Goodbye." patch-file)))
-     (define patch (string-append (path->string (current-directory)) "/" patch-file))
+     (define patch
+       (string-append (path->string (current-directory)) "/"
+         (if (null? CTR*)
+             ignore-all-patchfile
+             (begin (compile-patchfile CTR*) ignore-some-patchfile))))
+     (unless (file-exists? patch)
+       (raise-user-error 'setup (format "Error: could not find patch file '~a'. Goodbye." patch)))
      (and
        (parameterize ([current-directory rkt-dir])
          (system (string-append "git apply -v " patch)))
        (debug v? "Patch succeeded! Recompiling 'contract.rkt'")
-       (recompile rkt-dir)))))
+       (recompile rkt-dir (and (not (null? CTR*))
+                               contract.rkt))))))

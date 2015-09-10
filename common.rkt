@@ -5,13 +5,25 @@
   ;; Path-String
   ;; Directory to save overwritten files to.
 
+  contract.rkt
+  ;; Path-String
+  ;; Path fragment, locates the contract.rkt file within a Racket install
+
   overridden-files
   ;; (Listof String)
   ;; List of filenames that the patch will modify
 
-  patch-file
+  ignore-all-patchfile
   ;; String
-  ;; Name of the .patch file. (To avoid typos.)
+  ;; Name of the .patch file that ignores all contracts
+
+  ignore-some-patchfile
+  ;; String
+  ;; Name of the .patch file that ignores certain contracts.
+
+  patchfile-template
+  ;; String
+  ;; Name of the patchfile template used to fill the ignore-some-patchfile
 
   debug
   ;; #'(-> Boolean String Void)
@@ -55,12 +67,15 @@
 ;; Constants
 
 (define backup-dir "./_backup")
+(define contract.rkt "racket/collects/racket/contract.rkt")
 
 (define overridden-files
   '("racket/collects/racket/contract/private/base.rkt"
     "racket/collects/racket/contract/private/provide.rkt"))
 
-(define patch-file "ignore-all-contracts.patch")
+(define ignore-all-patchfile "ignore-all-contracts.patch")
+(define ignore-some-patchfile "ignore-some-contracts.patch")
+(define patchfile-template "ignore-some-contracts.patch.template")
 
 ;; -----------------------------------------------------------------------------
 
@@ -70,9 +85,11 @@
     (displayln (string-append "[INFO] " msg))))
 
 ;; Recompile a racket install. Skip building the docs to save time.
-(define-syntax-rule (recompile rkt-dir)
+(define (recompile rkt-dir [only-this-file #f])
   (parameterize ([current-directory rkt-dir])
-    (system "env PLT_SETUP_OPTIONS='-D' make")))
+    (if only-this-file
+        (system (format "raco make -v ~a" only-this-file))
+        (system "env PLT_SETUP_OPTIONS='-D' make"))))
 
 ;; -----------------------------------------------------------------------------
 

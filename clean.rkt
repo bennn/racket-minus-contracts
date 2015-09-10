@@ -5,7 +5,8 @@
 ;; - Rebuilds Racket
 
 (require
-  "common.rkt")
+  "common.rkt"
+  (only-in racket/system system))
 
 ;; =============================================================================
 
@@ -34,5 +35,10 @@
        (raise-user-error 'setup "Error: could not find a Racket install. Goodbye."))
      (debug v? (format "Found Racket directory '~a', replacing backed-up files..." rkt-dir))
      (restore-backups rkt-dir)
-     (debug v? "Replaced files. Recompiling 'contract.rkt'")
-     (recompile rkt-dir))))
+     (debug v? "Replaced files. Recompiling ...")
+     (cond
+      [(file-exists? ignore-some-patchfile)
+       (system (format "rm ~a" ignore-some-patchfile))
+       (recompile rkt-dir contract.rkt)]
+      [else
+       (recompile rkt-dir)]))))
