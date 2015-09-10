@@ -3,3 +3,4 @@
 *\.swp
 compiled/
 _backup/
+ignore-some-contracts.patch
