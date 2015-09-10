@@ -51,8 +51,9 @@ Manually:
 Advanced: Ignore a few contracts
 --------------------------------
 Here's the scenario:
+
 1. You've run the contract profiler
-2. You've noticed that one particular contract is very expensive.
+2. You've noticed that a few contracts are very expensive.
 
 For example, you see this output and decide that `(-> any/c boolean?)` is overly expensive.
 ```
@@ -73,12 +74,12 @@ BY CONTRACT
 ```
 
 Here's the solution:
-1. Run `racket setup.rkt "(-> any/c boolean?)`.
+
+1. Run `racket setup.rkt "(-> any/c boolean?)"`.
 
 Just like that, with a string.
-
 This recompiles your contract library to special-case contracts with that name.
+Note that this feature does _not_ recompile your entire Racket install.
 
 To undo the change, run `make clean` as before.
 
-Note that this feature does not recompile your entire Racket install.
