@@ -1,4 +1,4 @@
-all:
+ignore-all-contracts:
 	racket setup.rkt -q
 
 clean:

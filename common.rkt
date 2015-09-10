@@ -60,7 +60,7 @@
   '("racket/collects/racket/contract/private/base.rkt"
     "racket/collects/racket/contract/private/provide.rkt"))
 
-(define patch-file "ignore-contracts.patch")
+(define patch-file "ignore-all-contracts.patch")
 
 ;; -----------------------------------------------------------------------------
 
