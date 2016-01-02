@@ -17,7 +17,7 @@ You can apply this patch manually, or run the `Makefile` to automate things.
 Requirements
 ------------
 1. A "recent" from-source Racket installation.
-   Clone from `http://github.com/plt/racket` and compile using the instructions
+   Clone from `http://github.com/racket/racket` and compile using the instructions
    at that url.
 
 
