@@ -114,7 +114,7 @@
 
 ;; Prompt user to enter a path-string to their Racket install.
 (define (read-rkt-dir)
-  (printf "Enter the full path to your Racket install:\n")
+  (printf "Enter the full path to your Racket install (or re-run with the --racket flag):\n")
   (define rkt (read-line))
   (when (eof-object? rkt)
     (raise-user-error 'config "Got EOF, shutting down."))

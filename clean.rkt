@@ -39,6 +39,8 @@
      (cond
       [(file-exists? ignore-some-patchfile)
        (system (format "rm ~a" ignore-some-patchfile))
-       (recompile rkt-dir contract.rkt)]
+       (recompile rkt-dir contract.rkt)
+       (debug v? (format "Successfully recompiled: ~a" rkt-dir))]
       [else
-       (recompile rkt-dir)]))))
+       (recompile rkt-dir)
+       (debug v? (format "Successfully recompiled ~a" rkt-dir))]))))

@@ -67,4 +67,6 @@
          (system (string-append "git apply -v " patch)))
        (debug v? "Patch succeeded! Recompiling 'contract.rkt'")
        (recompile rkt-dir (and (not (null? CTR*))
-                               contract.rkt))))))
+                               contract.rkt))
+       (debug v? (format "Successfully recompiled: ~a" rkt-dir))
+       (debug v? (format "Run 'racket clean.rkt --racket <DIR>' to undo"))))))
