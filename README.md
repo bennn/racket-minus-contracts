@@ -1,51 +1,68 @@
 racket-minus-contracts
 ======================
 
-This repository contains a patch to remove contracts from your favorite
-Racket installation.
-This means that:
-- Contracts will still be created
-- Contracts will not be attached to values or checked
-
-These guarantees hold for both Racket and Typed Racket.
-See the `test/` folder for a few examples that fail normally, but run
-successfully after the patch.
-
-You can apply this patch manually, or run the `Makefile` to automate things.
+A patch to prevent Racket from attaching contracts to values (`ignore-all-contracts.patch`)
 
 
 Requirements
 ------------
-1. A "recent" from-source Racket installation.
-   Clone from [http://github.com/racket/racket](http://github.com/racket/racket) and compile using the instructions
-   at that url.
+
+1. Clone the [Racket](http://github.com/racket/racket) repository
+2. Make sure the clone for 'v6.8' or newer
 
 
 Usage
 -----
-Via the Makefile:
-- Run `make` to install the patch.
-  This locates your racket installation, saves the original files, patches
-  your installation, and re-builds Racket.
-- Run `make clean` to undo the patch.
-  This puts your original files back in place and recompiled Racket.
 
-Via the scripts:
-- Run `setup.rkt` to modify a Racket install.
-  The script will prompt for a the root directory of this Racket install.
-  Optionally, use the `-r` option; for example `racket setup.rkt -r /home/racket`.
-- Run `clean.rkt` to bring things back to normal.
-  The interface is the same as for `setup.rkt`.
+### Option 1: use the Makefile
 
-Manually:
-- To install:
-  - Change directories to the root of your Racket install
-  - Apply the patch `ignore-contracts.patch`
-  - Rebuild Racket
-- To uninstall:
-  - Change directories to the root of your Racket install
-  - Reset the changes with git: `git checkout -- .`
-  - Rebuild Racket
+```
+$ make
+```
+
+When prompted, enter a path to the Racket clone you want to disable contracts in.
+
+
+### Option 2: use `setup.rkt`:
+
+```
+$ racket setup.rkt --racket <PATH-TO-CLONE>
+```
+
+
+### Option 3: manually
+
+Apply the patchfile (`ignore-all-contracts.patch`) yourself.
+
+
+Turn Contracts Back On
+---
+
+If `<PATH-TO-CLONE>` is a path to a Racket clone with contracts disabled,
+ you can either run:
+
+```
+$ make clean
+```
+
+and input `<PATH-TO-CLONE>` when prompted, or run:
+
+```
+$ racket clean.rkt --racket <PATH-TO-CLONE>
+```
+
+
+Implementation
+---
+
+Some notes on implementation:
+
+- the `Makefile` calls the `setup.rkt` script
+- `setup.rkt` makes a backup of your files before it tries applying the patch
+- if the patch succeeds, `setup.rkt` runs the Makefile in your Racket clone to re-build everything
+- `clean.rkt` also recompiles the given Racket clone
+
+Recompiling Racket is slow, but it's the fastest way to make sure contracts are fully disabled (or re-eneabled)
 
 
 Advanced: Ignore a few contracts
