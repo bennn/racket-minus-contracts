@@ -1,8 +1,8 @@
 diff --git a/racket/collects/racket/contract/private/base.rkt b/racket/collects/racket/contract/private/base.rkt
-index aee46da..7cc3a7c 100644
+index f39714890b..0749513edf 100644
 --- a/racket/collects/racket/contract/private/base.rkt
 +++ b/racket/collects/racket/contract/private/base.rkt
-@@ -35,13 +35,10 @@
+@@ -41,13 +41,10 @@
  (define-syntax (contract stx)
    (syntax-case stx ()
      [(_ c v pos neg name loc)
@@ -19,20 +19,22 @@ index aee46da..7cc3a7c 100644
       (raise-syntax-error 'contract
         (string-append
 diff --git a/racket/collects/racket/contract/private/provide.rkt b/racket/collects/racket/contract/private/provide.rkt
-index d874ae1..b73baff 100644
+index d1705a761f..f86788c28c 100644
 --- a/racket/collects/racket/contract/private/provide.rkt
 +++ b/racket/collects/racket/contract/private/provide.rkt
-@@ -350,42 +350,7 @@
+@@ -351,61 +351,7 @@
              (raise-syntax-error #f "expected an identifier" stx #'new-id))
            (unless (identifier? #'orig-id)
              (raise-syntax-error #f "expected an identifier" stx #'orig-id))
--          (define-values (pos-blame-party-expr srcloc-expr)
+-          (define-values (pos-blame-party-expr srcloc-expr name-for-blame)
 -            (let loop ([kwd-args (syntax->list #'(kwd-args ...))]
 -                       [pos-blame-party-expr #'(quote-module-path)]
--                       [srcloc-expr #f])
+-                       [srcloc-expr #f]
+-                       [name-for-blame #f])
 -              (cond
 -                [(null? kwd-args) (values pos-blame-party-expr
--                                          (or srcloc-expr (stx->srcloc-expr stx)))]
+-                                          (or srcloc-expr (stx->srcloc-expr stx))
+-                                          (or name-for-blame #'new-id))]
 -                [else
 -                 (define kwd (car kwd-args))
 -                 (cond 
@@ -42,39 +44,54 @@ index d874ae1..b73baff 100644
 -                                          stx))
 -                    (loop (cddr kwd-args)
 -                          (cadr kwd-args)
--                          srcloc-expr)]
+-                          srcloc-expr
+-                          name-for-blame)]
 -                   [(equal? (syntax-e kwd) '#:srcloc)
 -                    (when (null? (cdr kwd-args))
 -                      (raise-syntax-error #f "expected a keyword argument to follow #:srcloc"
 -                                          stx))
 -                    (loop (cddr kwd-args)
 -                          pos-blame-party-expr
--                          (cadr kwd-args))]
+-                          (cadr kwd-args)
+-                          name-for-blame)]
+-                   [(equal? (syntax-e kwd) '#:name-for-blame)
+-                    (when (null? (cdr kwd-args))
+-                      (raise-syntax-error #f "expected a keyword argument to follow #:name-for-blame"
+-                                          stx))
+-                    (define name-for-blame (cadr kwd-args))
+-                    (unless (identifier? name-for-blame)
+-                      (raise-syntax-error #f "expected an identifier to follow #:name-for-blame"
+-                                          stx
+-                                          name-for-blame))
+-                    (loop (cddr kwd-args)
+-                          pos-blame-party-expr
+-                          srcloc-expr
+-                          name-for-blame)]
 -                   [else
--                    (raise-syntax-error #f "expected either the keyword #:pos-source of #:srcloc"
--                                        stx
--                                        (car kwd-args))])])))
+-                    (raise-syntax-error
+-                     #f
+-                     "expected one of the keywords #:pos-source, #:srcloc, or #:name-for-blame"
+-                     stx
+-                     (car kwd-args))])])))
 -          (internal-function-to-be-figured-out #'ctrct
 -                                               #'orig-id
 -                                               #'orig-id
--                                               #'new-id
+-                                               name-for-blame
 -                                               #'new-id
 -                                               srcloc-expr
 -                                               'define-module-boundary-contract
 -                                               pos-blame-party-expr))])]))
 +          #'(define new-id orig-id))])]))
  
- ;; ... -> (or/c #f (-> blame val))
+ ;; ... -> (values (or/c #f (-> neg-party val)) blame)
  (define (do-partial-app ctc val name pos-module-source source)
-@@ -1028,9 +993,10 @@
+@@ -1043,7 +989,8 @@
+              #`(define #,x-gen (new-∃/c '#,x))
               #`(define #,x-gen (new-∀/c '#,x))))
  
-        (define (add-exists-binders stx exists-binders)
-+         (let ([stx (syntax any/c)])
+-       (define (add-exists-binders stx exists-binders)
++       (define (add-exists-binders _x exists-binders)
++         (define stx #'any/c)
           (if (null? exists-binders)
               stx
--             #`(let #,exists-binders #,stx)))
-+             #`(let #,exists-binders #,stx))))
- 
-        (define (add-a-binder id id-gen binders)
-          (cons #`[#,id #,id-gen] binders))
+              #`(let #,exists-binders #,stx)))
