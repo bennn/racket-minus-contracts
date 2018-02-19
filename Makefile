@@ -1,6 +1,6 @@
 # read this as "ignore all"
 all:
-	racket setup.rkt -q
+	racket setup.rkt
 
 # TODO
 # # i.e., ignore-some
@@ -8,4 +8,4 @@ all:
 # 	racket setup.rkt -q $@
 
 clean:
-	racket clean.rkt -q
+	racket clean.rkt
