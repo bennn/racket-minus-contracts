@@ -1,3 +1,20 @@
+v6.4
+===
+
+This branch is tested to work on a clone of the Racket v6.4 release branch.
+
+If the @${RMC} environment variable points to where you cloned _this_ repo, you can run:
+
+```
+$ git clone https://github.com/racket/racket racket-v6.4
+$ cd racket-v6.4
+$ git checkout v6.4
+$ cd ..
+$ racket ${RMC}/setup.rkt --racket racket-v6.4
+```
+
+
+
 racket-minus-contracts
 ======================
 
